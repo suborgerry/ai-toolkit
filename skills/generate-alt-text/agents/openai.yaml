@@ -1,0 +1,4 @@
+interface:
+  display_name: "Generate Alt Text"
+  short_description: "Write contextual alt text for website images"
+  default_prompt: "Use $generate-alt-text to create alt text for these website images and their usage contexts."
