@@ -1,0 +1,4 @@
+interface:
+  display_name: "Check Figma Assets"
+  short_description: "Compare prepared images with Figma designs"
+  default_prompt: "Use $check-figma-assets to compare these prepared website images with their Figma reference screenshots."
