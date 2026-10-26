@@ -1,0 +1,4 @@
+interface:
+  display_name: "New Page by Existing"
+  short_description: "Fill a cloned WordPress page from Figma"
+  default_prompt: "Use $new-page-by-existing to fill an existing cloned WordPress page from the supplied Figma design and content."
