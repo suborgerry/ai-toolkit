@@ -63,10 +63,6 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - `npm run preview` — preview the `dist/` build.
 - No test runner is configured. Lint via `npx eslint .`; format via `npx prettier --write .`.
 
-## 6. Architecture
-
-This is a multi-page Vite site (MPA) whose final delivery target is a WordPress theme. The repo was forked from the `zen-express` starter; some root-level starter files (e.g. `index.html`) are not part of the actual build.
-
 ### Build inputs
 
 `vite.config.js` discovers entry HTML by reading `pages/*.html` at config-load time — **only files in `pages/` become build inputs**; the root `index.html` is ignored. The TS entry is `src/scripts/main.ts`, emitted as `assets/js/script.js`. Two custom Vite plugins run during build:
@@ -99,8 +95,42 @@ Components are recreated from Figma. Component-scoped classes follow a BEM-ish c
 
 `scripts/copy-assets.js` mirrors `dist/assets/` → `wp-theme/assets/` at the end of `npm run build`. Anything that needs to ship to the theme must end up under `dist/assets/` (which is why the rollup output naming and IIFE wrapping matter). Public files in `public/images/` are copied to `dist/` as-is by Vite but are **not** propagated to `wp-theme/` by the copy script — image assets are expected to live in the theme separately.
 
-## 7. Code style
+## 6. Code style
 
 - Prettier: `printWidth: 180`, double quotes, trailing commas (es5), `arrowParens: "avoid"`, with `prettier-plugin-tailwindcss` enabled (class lists get auto-sorted).
 - ESLint: TypeScript recommended config; `@typescript-eslint/no-explicit-any` is disabled.
 - TypeScript: strict mode on, `noUnusedLocals`/`noUnusedParameters` enforced — `tsc` runs as part of `build` and will fail the build on unused identifiers.
+
+## 7. Code for humar read
+
+- When writing something intended for human consumption, (comment, commit message, reply to prompt) use as few words as possible. Pick every word meticulously to reduce the volume to a strict minimum. Be down to the point. Less is more.
+
+- Avoid superlatives and praise. Stop telling me I am absolutely right. Give me the cold hard truth.
+
+- Avoid magic numbers and strings by extracting recurring or meaningful values into descriptive constants (const) or enums. Keep self-explanatory, one-off values inline to avoid clutter. If a value comes from a spec (e.g. HTTP 200 OK), use a constant regardless.
+
+- Reduce code indentation. Avoid Arrow Anti-Pattern. Leverage early return and continue.
+
+- Keep function names short. Less than 30 characters.
+
+- Use enums instead of booleans for function parameters.
+
+- Let the reader of the code breathe. Add empty lines between logical blocks of code.
+
+- Add a small, to the point, comment to explain *what* the block does and *why*. Use examples when possible. Propose ASCII drawings to explain complete systems.
+
+- Treat member visibility changes as a breaking design shift. Keep all fields and functions private unless external access is strictly required by the design. Prompt the user for explicit approval before changing any access modifier from private to internal or public.
+
+- Program to levels of abstraction. Lower-level mechanics (e.g., raw hardware I/O, sector parsing, direct socket streams) must be encapsulated in a dedicated driver/abstraction layer. Expose clean, high-level APIs to the rest of the application so calling code works with domain concepts, not raw implementation details.
+
+- Don't touch blocks of code unrelated to the feature you implement. e.g. Don't add comments to a block of code if you did not create it or modify it. As much as possible try to minimize the number of changed lines when implementing a feature.
+
+- Strictly adhere to the layered boundary hierarchy: each layer may only communicate with its immediate neighbor directly below it. Never "punch holes" through layers (e.g., controllers or UI components must never directly call database queries, raw hardware drivers, or low-level network clients; always route through the intermediate service/abstraction layer).
+
+- Always use {}, even on a one-line "if" statement.
+
+- If the prompt indicates that a bug is being fixed, don't write the fix right away. First write the test. Observe it failing. Then write the fix. And observe the test passing.
+
+## 8. Interaction tool. 
+- Priority #1 for chromedevtools-mcp. If unavailable, check whether it is installed and not currently in use by another agent.
+- Priority #2 for browser-skill and other tools.
