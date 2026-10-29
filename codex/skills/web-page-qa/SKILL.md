@@ -52,6 +52,7 @@ If two sources contradict each other, do not pick one: list it under **Source co
 **If something is missing**
 - No design at all: run only the functional checks and the report; state that design match was not checked.
 - Desktop design only: check mobile against general responsive rules (sections B, C) and mark mobile design match as not verified.
+- No mobile frames supplied: ask once more whether a mobile Figma design exists before starting F2. If it exists, request it and compare against it instead of running F2.
 
 ## Step 2. Browser: chrome-devtools-mcp
 
@@ -280,6 +281,55 @@ There is usually no Figma per language: compare each language's layout with the 
 - **E3.** In each language, at desktop and at least 375 and 320 px: no clipping, overlap or overflow from longer strings in buttons, menu, headings and forms (run the overflow script per language).
 - **E4.** No visibly untranslated fragments in a translated version, and no broken characters or encoding.
 - **E5.** Internal links and forms in a translated version stay in that language (with URL-based languages the subdirectory/subdomain is kept); form validation and success messages appear in that language if they are supposed to.
+
+### F. Typography and line breaks (added; not in the original checklist)
+Run at every viewport of the standard sweep, after Step 3.
+- **F1. Single-word last lines.** No heading, paragraph, list item, button or label ends with one word alone on its last line, where avoidable. Skip cases the approved design shows the same way. Recommended correction: `&nbsp;` between the last two words; `<br>` for a deliberate break in headings. Do not apply the fix yourself.
+- **F2. Consistent text sizes** (only without a mobile design, see Step 1). At each viewport, text with the same role (h1, h2, h3, body, list, button) has the same font size, line height and weight across sections. Between viewports, sizes scale consistently: none grows from desktop to mobile, and heading hierarchy (h1 > h2 > h3 > body) holds at every width. Intentional exceptions (e.g. a larger hero heading) are questions for the user, not bugs.
+
+**Single-word last line script (F1):**
+```js
+() => {
+  const sel = 'h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,button,label,a';
+  const out = [];
+  for (const el of document.querySelectorAll(sel)) {
+    if (el.querySelector(sel) || !el.getClientRects().length) continue;
+    const text = el.innerText.trim();
+    if (text.split(/\s+/).length < 3) continue;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let last = null;
+    while (walker.nextNode()) if (walker.currentNode.textContent.trim()) last = walker.currentNode;
+    if (!last) continue;
+    const t = last.textContent.replace(/\s+$/, '');
+    const start = t.search(/\S+$/);
+    const r = document.createRange();
+    r.setStart(last, start); r.setEnd(last, t.length);
+    const lastRect = r.getClientRects()[0];
+    r.setStart(el, 0); r.setEnd(last, start);
+    const prev = [...r.getClientRects()].filter(x => x.width).at(-1);
+    if (lastRect && prev && lastRect.top > prev.top + 1) out.push({ tag: el.tagName.toLowerCase(), cls: String(el.className).slice(0, 60), ending: text.slice(-60) });
+  }
+  return { width: innerWidth, count: out.length, items: out.slice(0, 50) };
+}
+```
+
+**Text size script (F2):** roles with more than one `style` at the same width are candidates.
+```js
+() => {
+  const roles = { h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4', body: 'main p', list: 'main li', button: 'button, a[class*="btn"], a[class*="button"]' };
+  const res = {};
+  for (const [role, sel] of Object.entries(roles)) {
+    const styles = {};
+    for (const el of document.querySelectorAll(sel)) {
+      if (!el.getClientRects().length || !el.innerText.trim()) continue;
+      const s = getComputedStyle(el);
+      (styles[`${s.fontSize} / ${s.lineHeight} / ${s.fontWeight}`] ??= []).push(el.innerText.trim().slice(0, 40));
+    }
+    res[role] = Object.entries(styles).map(([style, v]) => ({ style, count: v.length, samples: v.slice(0, 3) }));
+  }
+  return { width: innerWidth, roles: res };
+}
+```
 
 ## Step 6. Findings discipline
 
