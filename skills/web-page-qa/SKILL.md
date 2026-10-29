@@ -1,6 +1,6 @@
 ---
 name: web-page-qa
-description: QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, responsive, links, forms, console; write bug reports, retest fixes.
+description: "QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, responsive, links, forms, console; write bug reports, retest fixes."
 ---
 
 # Web Page QA (Web Department Quality Control Checklist)
