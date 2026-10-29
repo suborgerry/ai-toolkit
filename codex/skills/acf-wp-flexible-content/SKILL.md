@@ -1,6 +1,6 @@
 ---
 name: acf-wp-flexible-content
-description: Use when converting static HTML sections, frontend components, or existing page markup into WordPress theme integration with ACF Pro Flexible Content, ACF Local JSON field groups, PHP template parts, CMS-editable fields, safe WordPress output, and structural header/footer/theme settings wiring. Trigger for HTML-to-WordPress, ACF flexible layouts, template-parts/flexible, ACF JSON updates, WordPress theme partials, options pages, and replacing hardcoded section content with editable ACF fields. Do not use for pixel-perfect frontend-only work unless WordPress/ACF integration is explicitly requested.
+description: Use when converting static HTML sections, frontend components, or existing page markup into WordPress theme integration with ACF Pro Flexible Content, ACF Local JSON field groups, PHP template parts, CMS-editable fields, safe WordPress output, and structural header/footer/theme settings wiring. Trigger for HTML-to-WordPress, ACF flexible layouts, template-parts/flexible, ACF JSON updates, WordPress theme partials, options pages, and replacing hardcoded section content with editable ACF fields. Do not use for pixel-perfect frontend-only work, Gutenberg blocks, or plugin/page-builder architecture unless explicitly requested.
 ---
 
 # ACF WP Flexible Content
@@ -14,28 +14,7 @@ This skill is for CMS integration work after, or alongside, frontend implementat
 - The current project is the source of truth for theme paths, coding style, helper functions, Tailwind/CSS conventions, asset handling, ACF JSON structure, field key naming, menu registration, and rendering patterns.
 - The provided HTML, components, screenshots, or existing templates are the source of truth for structure, classes, attributes, Alpine/JS hooks, visual hierarchy, and content relationships.
 - Existing ACF JSON field groups are the source of truth for group settings, field naming patterns, layout conventions, and key style.
-- Preserve user changes and avoid unrelated refactors.
 - When project conventions conflict with this skill, inspect the project first and follow the project if the convention is intentional and safe.
-
-## Use And Avoid
-
-Use this skill for:
-
-- Static HTML to WordPress flexible sections
-- ACF Pro Flexible Content layout creation or updates
-- ACF Local JSON field group edits
-- `template-parts/flexible/*.php` layout templates
-- Converting hardcoded content into editable fields
-- WordPress-safe output, escaping, image rendering, and link handling
-- Header, footer, nav, and site-wide content integration through theme partials and Theme Settings
-
-Do not use this skill for:
-
-- Frontend-only pixel-perfect implementation without WordPress/ACF integration
-- Gutenberg block development unless explicitly requested
-- Plugin architecture or custom page builders unless explicitly requested
-- Broad theme refactors unrelated to the requested sections
-- Inventing new design variants, fields, or configuration not required by the source markup
 
 ## Default Project Paths
 
@@ -53,16 +32,6 @@ wp-theme/inc/
 ```
 
 Never assume these paths are final. First inspect the repository and follow the existing theme structure.
-
-## Engineering Principles
-
-- Think before coding. State assumptions, uncertainty, and tradeoffs when they affect files, fields, layout names, or editor behavior.
-- Prefer the simplest implementation that accurately models the source content.
-- Make surgical changes. Touch only files required for the requested ACF integration, template rendering, or verification fix.
-- Do not add speculative variants, abstractions, settings, helper functions, dependencies, or editor options.
-- Match existing project style even if another style would also work.
-- Clean up only code made unused by your changes. Mention unrelated dead code instead of deleting it.
-- Every changed line should trace back to the user request, source markup, CMS editability, WordPress safety, or verification.
 
 ## Required Discovery
 
@@ -540,19 +509,11 @@ If a layout file might be missing during migration, use the project’s existing
 - Keep semantic heading order from the source unless the source is clearly incorrect.
 - For tabs, accordions, sliders, modals, and menus, preserve keyboard and state behavior.
 
-## Tailwind And Styling Integration
+## Styling Integration
 
-When the project uses Tailwind:
-
-- Preserve approved Tailwind utility classes from the source markup.
-- Prefer Tailwind CSS v4+ CSS-first configuration and CSS variables when creating reusable design tokens.
-- Do not add legacy JavaScript Tailwind config unless the project already intentionally uses it.
-- Do not introduce raw reusable color utilities like `bg-[#fff]`, `text-[#111]`, or `border-[#ddd]`. Put reusable colors and repeated design values into the project style layer as CSS variables/tokens and reference them through project conventions.
-- Use arbitrary values only for one-off measurements required to preserve the approved design.
-- Avoid dynamic class names that the build process may not detect.
-- Do not replace working project utilities with custom CSS unless necessary.
-
-When the project uses SCSS/CSS, keep styles scoped and follow existing naming conventions. Do not refactor styling architecture while converting ACF sections.
+- Preserve approved utility classes and scoped classes from the source markup.
+- Avoid class names composed dynamically in PHP that the build cannot detect; map variants to full class strings.
+- Do not refactor styling architecture while converting ACF sections.
 
 ## Structural Components And Theme Settings
 
@@ -617,11 +578,8 @@ Follow existing capability, slug, and menu placement conventions if present.
 
 CMS editability must not break accessible output.
 
-- Use semantic HTML before ARIA.
 - Keep meaningful images editable and output with appropriate alt handling through WordPress attachment data.
 - Keep decorative SVGs static and hidden from assistive tech when appropriate.
-- Preserve visible focus states.
-- Use real links for navigation and real buttons for actions.
 - Do not make editors choose from confusing technical variants.
 - Labels should be readable in wp-admin.
 - Fields should appear in the same logical order as the front-end section.
@@ -678,25 +636,6 @@ npm run typecheck
 ```
 
 Do not claim completion until checks pass or remaining issues are clearly reported.
-
-## Anti-Patterns
-
-Avoid:
-
-- Hardcoded editor content
-- ACF fields for decorative SVGs
-- One field per repeated item instead of a repeater
-- Separate layouts for simple color/spacing variants
-- Page-copy layout names like `why_choose_us`
-- Page-specific names like `home_hero` unless truly one-off
-- Vague names like `custom_section`, `section_v2`, `new_layout`
-- Rebuilding forms without a known form system
-- New walkers/helpers/options pages when existing ones work
-- `the_field()` / `the_sub_field()` in flexible layout templates
-- `have_rows()` loops inside repeaters when array output is practical
-- Manual `<img>` tags for ACF image fields
-- Editable images as inline CSS background URLs
-- Unrelated cleanup or theme refactoring
 
 ## Final Response
 

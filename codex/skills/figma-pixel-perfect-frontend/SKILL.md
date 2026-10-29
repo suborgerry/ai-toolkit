@@ -15,7 +15,6 @@ This skill is for **design-to-HTML implementation with visual QA**. It may prepa
 - The visual reference is the source of truth for output.
 - Adapt design-tool output to the project instead of copying generated code blindly.
 - If project-specific rules conflict with this skill, inspect the project first and follow the project when the convention is clearly intentional.
-- Preserve user changes and avoid unrelated refactors.
 
 ## Required Design Reference
 
@@ -28,27 +27,6 @@ A pixel-perfect task requires at least one clear visual source of truth:
 - Exported design frame
 
 If no visual reference is provided, stop before implementation and tell the user that pixel-perfect work requires a Figma design, screenshot, mockup, or other visual reference. Do not attempt pixel-perfect implementation from text alone.
-
-## Use And Avoid
-
-Use this skill for:
-
-- Figma-to-HTML implementation
-- Static frontend sections, components, and page blocks
-- CMS-ready HTML markup
-- Scoped, prefixed component styling
-- Local asset implementation
-- Browser screenshot comparison and visual QA
-
-Do not use this skill for:
-
-- Tasks without a visual reference
-- Ordinary UI bug fixes without a design reference
-- Backend-only work
-- Feature work where visual fidelity is not required
-- Broad redesigns without a visual source of truth
-- Review-only tasks unless screenshot comparison or pixel-perfect validation is requested
-- WordPress, PHP, ACF field setup, or CMS template implementation unless explicitly requested separately
 
 ## Useful Prompt Details
 
@@ -76,15 +54,6 @@ If Figma access, browser screenshots, or visual diff tools are unavailable, stat
 - Browser preview without automated visual diff
 
 Do not claim pixel-perfect verification unless browser screenshot comparison was actually performed against the visual reference.
-
-## Engineering Judgment
-
-- Choose the simplest implementation that satisfies the design, future CMS needs, and project conventions.
-- Do not add features, variants, abstractions, dependencies, or configurability that the design or user did not require.
-- Push back briefly if an approach would make the implementation fragile, hard to edit, or inconsistent with the project.
-- Keep small isolated components lightweight while still rendering and visually checking the result.
-- Stop and name what is unclear instead of guessing when ambiguity blocks correct implementation.
-- State important assumptions in the final response.
 
 ## Project Discovery
 
@@ -165,6 +134,8 @@ Fix issues in this order:
 
 If browser screenshot comparison was not possible, say so clearly and describe the fallback verification method used.
 
+Store QA screenshots in a temporary location; do not commit them unless the project already does.
+
 ## Responsive Verification
 
 Check the design-provided breakpoints first. If breakpoints are not provided, verify common widths such as:
@@ -225,7 +196,6 @@ During visual comparison, verify:
 - Reset or isolate styles when global styles affect the component.
 - Avoid unrelated global style changes unless global rules directly break the requested design and the project context makes the change appropriate.
 - Prefer existing project conventions, but prioritize visual fidelity for the requested component.
-- Do not install unnecessary libraries or frameworks.
 
 ## CMS-Ready HTML Rules
 
@@ -273,35 +243,6 @@ Accessibility is part of implementation, not only a final quality check.
 - Use a local SVG or exported asset when a custom icon is more faithful than an approximation.
 - Do not install a new icon library before checking existing project tools and assets.
 
-## Surgical Change Rules
-
-- Touch only files needed for the requested implementation.
-- Do not refactor adjacent code, rename unrelated classes, or reformat unrelated files.
-- Match the existing project style even when another style would also work.
-- Remove only unused imports, variables, assets, or code introduced by the current changes.
-- Do not delete pre-existing dead code unless the user asks.
-- If unrelated code looks suspicious, mention it in the final response instead of changing it.
-- Every changed line should trace back to the requested design, CMS-ready markup needs, visual QA, or build fix.
-- When screenshots are captured for QA, store them in a temporary or QA-appropriate location and avoid committing generated QA screenshots unless the project already does so.
-
-## Anti-Patterns
-
-Avoid:
-
-- Starting without a Figma design, screenshot, mockup, or visual reference
-- Claiming pixel-perfect accuracy without screenshot-based verification
-- Skipping visual comparison after implementation
-- Using approximate colors when exact design colors are available
-- Replacing unavailable design assets with fake or unrelated placeholders
-- Reproducing design export artifacts as production crop hacks
-- Hardcoding arbitrary widths or heights to compensate for incorrect parent layout
-- Using raw arbitrary Tailwind color utilities for reusable design colors instead of variables or tokens
-- Assuming icon colors, line heights, font weights, or spacing from visual memory
-- Adding dependencies before checking existing project tools
-- Letting global styles silently control the component
-- Treating Figma-generated code as production code
-- Generating WordPress, PHP, ACF, or CMS implementation when the task only asks for design-to-HTML
-
 ## Quality Gates
 
 Complete the task only when:
@@ -327,6 +268,7 @@ Include:
 - Key visual fixes
 - Responsive checks performed
 - Build, lint, or typecheck result
+- Assumptions
 - Remaining limitations or differences
 
 Do not overclaim. Do not say the result is pixel-perfect unless browser screenshot comparison was performed against the design reference. If verification was partial, state exactly what was and was not verified.
