@@ -17,7 +17,7 @@ Write the report in the language the user writes in, unless they ask otherwise.
 
 ## Step 1. Request the design and other sources of truth
 
-Before any testing, ask for everything missing in **one message** (links need typing, so ask in plain text; use AskUserQuestion only for yes/no or choice questions such as form-submission permission).
+Before any testing, ask for everything missing in **one plain-text message**.
 
 **Page**
 - Exact page URL; production or staging; the correct production domain.
@@ -55,12 +55,14 @@ If two sources contradict each other, do not pick one: list it under **Source co
 
 ## Step 2. Browser: chrome-devtools-mcp
 
-All live-page testing goes through the **chrome-devtools-mcp** server (Google's official Chrome DevTools MCP). Its tools usually appear prefixed, e.g. `mcp__chrome-devtools__take_screenshot`; below they are named without the prefix.
+All live-page testing goes through the **chrome-devtools-mcp** server (Google's official Chrome DevTools MCP). Below, its tools are named without any client prefix.
 
-**Check availability first.** If no chrome-devtools tools are in the session, stop and tell the user. Do not silently switch to another browser tool. Suggested setup:
+**Check availability first.** If no chrome-devtools tools are in the session, stop and tell the user. Do not silently switch to another browser tool. Suggested setup in `~/.codex/config.toml`:
 
-```json
-"chrome-devtools": { "command": "npx", "args": ["-y", "chrome-devtools-mcp@latest", "--isolated"] }
+```toml
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest", "--isolated"]
 ```
 
 - `--isolated`: temporary clean profile (no cache, no cookies, logged out). Default choice for QA.

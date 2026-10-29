@@ -1,0 +1,9 @@
+interface:
+  display_name: "Web Page QA"
+  short_description: "QA a live page against its Figma design"
+  default_prompt: "Use $web-page-qa to check this page against its approved Figma frames and write a bug report."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "chrome-devtools"
+      description: "Chrome DevTools MCP server (chrome-devtools-mcp)"

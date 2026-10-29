@@ -1,0 +1,4 @@
+interface:
+  display_name: "ACF WP Flexible Content"
+  short_description: "Turn static sections into ACF Flexible Content"
+  default_prompt: "Use $acf-wp-flexible-content to convert these static sections into ACF Flexible Content layouts and templates."

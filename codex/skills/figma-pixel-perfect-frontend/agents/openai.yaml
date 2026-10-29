@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figma Pixel Perfect Frontend"
+  short_description: "Build frontend markup from Figma with visual QA"
+  default_prompt: "Use $figma-pixel-perfect-frontend to implement this Figma frame as frontend markup and verify it against the design."
