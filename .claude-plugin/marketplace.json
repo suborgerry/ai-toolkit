@@ -1,0 +1,12 @@
+{
+  "name": "ai-toolkit",
+  "description": "Personal AI toolkit plugins",
+  "owner": { "name": "suborgerry" },
+  "plugins": [
+    {
+      "name": "ai-toolkit",
+      "source": "./claude",
+      "description": "Figma-to-WordPress workflow skills"
+    }
+  ]
+}

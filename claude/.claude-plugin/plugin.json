@@ -1,0 +1,6 @@
+{
+  "name": "ai-toolkit",
+  "version": "0.1.0",
+  "description": "Figma-to-WordPress workflow skills: frontend markup, ACF Flexible Content, page fill, asset checks, alt text, page QA, skill authoring",
+  "author": { "name": "suborgerry" }
+}
