@@ -1,0 +1,4 @@
+interface:
+  display_name: "Toolkit Skill Creator"
+  short_description: "Create or update an ai-toolkit skill for Claude and Codex"
+  default_prompt: "Use $skill-creator to create a toolkit skill that does the following:"
