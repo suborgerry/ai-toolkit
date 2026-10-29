@@ -225,6 +225,7 @@ Compare section by section (Step 4), header to footer.
 28. Primary interactions work with mouse, touch and keyboard: keyboard via `press_key` (`Tab`, `Enter`, `Escape`) with visible focus; touch via `emulate` with `touch` flag (emulated only: real-device touch is Needs Manual Verification).
 29. `list_console_messages`: no page-breaking errors; point any to the developer with the message text and source.
 30. Tested in Chrome via chrome-devtools-mcp (it drives Chrome only). Other required browsers are Needs Manual Verification.
+31. No placeholder content: lorem ipsum, "Placeholder" / sample text, test phones (555, 123456…, repeated digits), test emails (`example.com`, `test@`), stock placeholder images, empty headings, paragraphs, links, buttons or sections (placeholder script below). Compare suspicious contacts with the supplied copy before reporting.
 
 **Link check script (items 20-22):**
 ```js
@@ -264,6 +265,44 @@ Then:
 - Review `external` for demo/template sites, staging domains and any domain that should be the production domain.
 - Cross-origin `fetch` cannot read status. Check each external link by opening it with `new_page` and reading the document status in `list_network_requests` (`resourceTypes: ["document"]`); close the page afterwards. Any external link not opened is listed as untested.
 - Check that `tel:` / `mailto:` values match the design, supplied copy or link map.
+
+**Placeholder script (item 31):**
+```js
+() => {
+  const visible = el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+  const textRe = /lorem ipsum|dolor sit amet|placeholder|sample text|your text here|text goes here|\bTBD\b|\bTODO\b|\bxxx+\b/i;
+  const emailRe = /@(example|test|domain|email)\.|^(test|email|name|user)@/i;
+  const testPhone = d => /^(\d)\1+$/.test(d) || d.includes('1234567') || /^1?555\d{7}$/.test(d);
+  const media = 'img,svg,video,iframe,picture,canvas,input,select,textarea';
+  const out = { text: [], phones: [], emails: [], images: [], empty: [] };
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const n = walker.currentNode, el = n.parentElement;
+    if (!el || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName) || !visible(el)) continue;
+    const t = n.textContent.trim();
+    if (textRe.test(t)) out.text.push(t.slice(0, 80));
+    for (const m of t.match(/\+?[\d(][\d\s().-]{6,}\d/g) || []) if (testPhone(m.replace(/\D/g, ''))) out.phones.push(m);
+    for (const m of t.match(/[\w.+-]+@[\w-]+\.[\w.]+/g) || []) if (emailRe.test(m)) out.emails.push(m);
+  }
+  for (const a of document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"]')) {
+    const v = decodeURIComponent(a.getAttribute('href').replace(/^(tel|mailto):/i, ''));
+    if (a.href.startsWith('tel:') ? testPhone(v.replace(/\D/g, '')) : emailRe.test(v)) (a.href.startsWith('tel:') ? out.phones : out.emails).push(a.getAttribute('href'));
+  }
+  for (const img of document.images) {
+    const src = img.currentSrc || img.src;
+    if (/placeholder|placehold|dummyimage|picsum|lorempixel/i.test(src)) out.images.push(src);
+  }
+  for (const el of document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,a,button,section')) {
+    if (!visible(el) || el.innerText.trim() || el.querySelector(media)) continue;
+    if (el.getAttribute('aria-label') || el.title) continue;
+    if (el.tagName === 'SECTION' && el.getBoundingClientRect().height < 40) continue;
+    out.empty.push(el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 3).join('.') : ''));
+  }
+  for (const k in out) out[k] = [...new Set(out[k])].slice(0, 30);
+  return out;
+}
+```
 
 ### D. Cookie / consent banner (added; not in the original checklist; skip if the site has none)
 Consent is stored in cookies/localStorage, so use a new `isolatedContext` for each state.
