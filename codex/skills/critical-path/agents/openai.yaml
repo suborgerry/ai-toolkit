@@ -1,0 +1,9 @@
+interface:
+  display_name: "Critical Path"
+  short_description: "Critical CSS and non-blocking JS for a Vite + WordPress page"
+  default_prompt: "Use $critical-path to measure this page's render-blocking CSS and JS, then add critical CSS and non-blocking JS."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "chrome-devtools"
+      description: "Chrome DevTools MCP server (chrome-devtools-mcp)"

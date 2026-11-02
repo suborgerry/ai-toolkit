@@ -11,6 +11,7 @@ Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two varian
 | `check-figma-assets` | Compare prepared images with Figma references |
 | `generate-alt-text` | Context-aware alt text for images, icons, logos |
 | `web-page-qa` | QA a live page against Figma via chrome-devtools-mcp |
+| `critical-path` | Critical CSS and non-blocking JS for a Vite + WordPress page, measured before/after |
 | `skill-creator` | Create or update a skill in this repo for both platforms |
 
 ## Layout
@@ -57,5 +58,5 @@ Codex has no equivalent; there the skill rules are the only guard.
 
 ## MCP servers
 
-- `web-page-qa` requires chrome-devtools-mcp.
+- `web-page-qa` and `critical-path` require chrome-devtools-mcp.
 - Figma skills use the Figma MCP server when available.
