@@ -1,0 +1,14 @@
+interface:
+  display_name: "Figma to ACF"
+  short_description: "Build Figma sections as ACF layouts on local WordPress"
+  default_prompt: "Use $figma-to-acf to build these Figma sections as ACF Flexible Content layouts and verify them on the local WordPress page."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "figma"
+      description: "Figma MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.figma.com/mcp"
+    - type: "mcp"
+      value: "chrome-devtools"
+      description: "Chrome DevTools MCP server (chrome-devtools-mcp)"
