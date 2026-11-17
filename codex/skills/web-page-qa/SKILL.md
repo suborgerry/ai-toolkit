@@ -1,6 +1,6 @@
 ---
 name: web-page-qa
-description: "QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, responsive, links, forms, console; desktop Safari via safaridriver MCP; write bug reports, retest fixes."
+description: "QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, interaction states, responsive, links, forms, console, accessibility (contrast, keyboard, motion); desktop Safari via safaridriver MCP; write bug reports, retest fixes."
 ---
 
 # Web Page QA (Web Department Quality Control Checklist)
@@ -221,7 +221,7 @@ Compare section by section (Step 4), header to footer.
 5. Borders, shadows, backgrounds, gradients, corner radii and dividers match.
 6. Image crops, focal points, aspect ratios and quality match.
 7. Header, navigation, footer, cards, forms, sliders and other components match.
-8. Hover, active, open, selected and disabled states match when shown in the design (`hover` / `click` on the uid, then element `take_screenshot`).
+8. Hover, active, open, selected and disabled states match the design (`hover` / `click` on the uid, then element `take_screenshot`). For each state on the page (open menu, dropdown, hover, active tab, form error), find its frame in the Figma file (`get_metadata` on the page, components, state frames). Not found: ask the user for the frame link. Still none: list the state as "not verified" under Coverage; do not compare it against a guess.
 
 ### B. Desktop, mobile and responsive
 9. Desktop layout matches the approved desktop design.
@@ -258,7 +258,7 @@ Compare section by section (Step 4), header to footer.
 25. Forms display correctly, required fields validate, errors are clear, and a valid submission gives the expected success result (compare with the form spec). Submit only with the user's permission: `fill_form` with the agreed test data, `click` submit, `wait_for` the success text, and confirm the submit request status in `list_network_requests`. Without permission, test validation only (submit empty / invalid) and mark the valid submission Needs Manual Verification.
 26. No glaring typos, duplicated/missing words or obvious punctuation errors (`take_snapshot` gives the page text).
 27. Sticky headers, buttons, cookie notices and chat widgets do not cover important content (check at mobile widths too, after scrolling).
-28. Primary interactions work with mouse, touch and keyboard: keyboard via `press_key` (`Tab`, `Enter`, `Escape`) with visible focus; touch via `emulate` with `touch` flag (emulated only: real-device touch is Needs Manual Verification).
+28. Primary interactions work with mouse, touch and keyboard: keyboard per section G; touch via `emulate` with `touch` flag (emulated only: real-device touch is Needs Manual Verification).
 29. `list_console_messages`: no page-breaking errors; point any to the developer with the message text and source.
 30. Tested in Chrome via chrome-devtools-mcp and in desktop Safari via safaridriver MCP (Step 2b). iOS Safari and other required browsers are Needs Manual Verification.
 31. No placeholder content: lorem ipsum, "Placeholder" / sample text, test phones (555, 123456…, repeated digits), test emails (`example.com`, `test@`), stock placeholder images, empty headings, paragraphs, links, buttons or sections (placeholder script below). Compare suspicious contacts with the supplied copy before reporting.
@@ -404,6 +404,15 @@ Run at every viewport of the standard sweep, after Step 3.
 }
 ```
 
+### G. Accessibility (added; not in the original checklist)
+Run on a reloaded page without the Step 3 freeze, at desktop and mobile. Scripts live in `scripts/` of this skill: run them with `evaluate_script` `sourcePath` (or read the file and pass it as `function`).
+- **G1. Contrast in panels.** Open each dropdown, submenu, mobile menu, popup and accordion panel (`click` / `hover`), then run `contrast.js` with the panel's uid (from `take_snapshot`) in `args`. Run it once without `args` for the whole page. `fail` entries are findings. `manual` entries sit on images, gradients or semi-transparent layers: judge them from an element screenshot.
+- **G2. Focus.** Press `Tab` from the top of the page and run `focus.js` after each press. Every focused element shows a visible indicator: `outline` and `boxShadow` both false → confirm with an element `take_screenshot`. Focus never lands on hidden elements or inside closed panels.
+- **G3. Menu by keyboard.** `Tab` reaches every top-level menu item. Submenus and the mobile menu open with `Enter` / `Space` (`aria-expanded` flips) and their items are reachable with `Tab`. Focus order follows visual order.
+- **G4. Esc.** `Escape` closes submenus, the mobile menu, popups and modals; focus returns to the control that opened them.
+- **G5. Animation pause.** Anything moving automatically for more than 5 s (autoplay slider, marquee, background video, Lottie) has a visible pause/stop control that works by mouse and keyboard: after pausing, two screenshots 5 s apart are identical.
+- **G6. prefers-reduced-motion.** If the `emulate` schema offers reduced-motion emulation, enable it, reload, and check that entrance animations, parallax, autoplay and marquees stop or calm down. Otherwise run `reduced-motion.js`: no rules while the page animates → Likely; the behavior itself → Needs Manual Verification (macOS: System Settings > Accessibility > Display > Reduce motion).
+
 ## Step 6. Findings discipline
 
 - Label every finding:
@@ -435,7 +444,7 @@ Severity guide (suggested; follow the project's own scale if given):
 ## Step 8. Summary and approval readiness
 
 End with:
-1. **Coverage:** sources of truth used, viewports emulated, Chrome and Safari versions, languages and consent states tested, which URLs were checked, and what was not tested.
+1. **Coverage:** sources of truth used, viewports emulated, Chrome and Safari versions, languages and consent states tested, which URLs were checked, and what was not tested, including states without a design frame marked "not verified".
 2. **Source conflicts** (if any), as questions for the user.
 3. **Issue count by severity**, then the issue list ordered by severity.
 4. **Final approval checklist**, each marked pass / fail / not verified:
@@ -443,6 +452,7 @@ End with:
    - No known visual, responsive, link, form, navigation or interaction errors remain.
    - Every clickable element works; no URL returns 404, another error page or an unintended destination.
    - No glaring typos or obvious copy errors remain.
+   - Accessibility checks (section G) pass.
    - All reported fixes were retested.
    - Any remaining difference is documented and approved.
 5. **Verdict:** "Not ready for approval" if any item fails; otherwise "Ready for approval by the Web Department Director / project lead". Approval rule: the page is not approved while it differs from the design or a known error is unresolved, unless the Director or project lead has explicitly accepted that difference or issue.

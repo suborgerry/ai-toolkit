@@ -85,5 +85,44 @@ for drafts or private pages. Check:
 5. Changed SEO fields render correctly, while publication and indexing settings match scope.
 6. Replaced sections contain no unintended donor-page copy.
 
-Report changed sections, imported media IDs, verification results, and unresolved inputs or
-checks that could not be performed. Do not claim visual verification from metadata checks alone.
+### Compare each clone with its own frames
+
+A clone inherits the donor's styles and settings, so it can look right and still be wrong. For
+every cloned page, take its own desktop and mobile frames (not the donor's) and compare computed
+styles at the frame widths with the script below (`evaluate_script` in chrome-devtools):
+
+1. Heading accents: accented words, their color, weight and font.
+2. H1 and H2: font size, line height, weight.
+3. FAQ headings: set the script's `sel` default to the question selector.
+4. Elements that exist only on this page: present and styled per the frame, not replaced by donor equivalents.
+5. Donor leftovers in settings: compare `wp post meta list <ID>` of the clone and the donor. Equal
+   SEO title and description, OG image, canonical, schema, page-level ACF options, CTA links and
+   form IDs are candidates: fix them within scope or list them as questions.
+
+```js
+// Headings with their size and accent children (color, weight, style or font differing from the heading).
+(sel = "h1, h2") => {
+  const key = s => `${s.color} ${s.fontWeight} ${s.fontStyle} ${s.fontFamily}`;
+  const visible = [...document.querySelectorAll(sel)].filter(el => el.getClientRects().length);
+
+  return visible.map(el => {
+    const s = getComputedStyle(el);
+    const accents = [...el.querySelectorAll("*")]
+      .filter(c => key(getComputedStyle(c)) !== key(s))
+      .map(c => {
+        const cs = getComputedStyle(c);
+        return { text: c.innerText.trim().slice(0, 40), color: cs.color, weight: cs.fontWeight, font: cs.fontFamily };
+      });
+    return { tag: el.tagName.toLowerCase(), text: el.innerText.trim().slice(0, 60), size: s.fontSize, lineHeight: s.lineHeight, weight: s.fontWeight, color: s.color, accents };
+  });
+}
+```
+
+### Run web-page-qa
+
+Finish by running `$web-page-qa` on every changed page against its own frames.
+This step is mandatory. If it cannot run, say so in the report.
+
+Report changed sections, imported media IDs, verification results, web-page-qa findings, and
+unresolved inputs or checks that could not be performed. Do not claim visual verification from
+metadata checks alone.
