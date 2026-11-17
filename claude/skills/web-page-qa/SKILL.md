@@ -1,6 +1,6 @@
 ---
 name: web-page-qa
-description: "QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, responsive, links, forms, console; write bug reports, retest fixes."
+description: "QA a developed web page against its approved Figma/design on desktop and mobile using chrome-devtools-mcp: design match, responsive, links, forms, console; desktop Safari via safaridriver MCP; write bug reports, retest fixes."
 ---
 
 # Web Page QA (Web Department Quality Control Checklist)
@@ -104,6 +104,38 @@ Rules:
 - `mobile` flag does not change the user agent. If the theme or a plugin detects mobile server-side (e.g. WordPress `wp_is_mobile()`), also set a mobile `userAgent` and reload.
 - When going back to desktop, set a desktop viewport string explicitly (without `mobile`/`touch`).
 - Between-breakpoint sweep (item 17): step through widths from 320 to 1920 (denser around the site's breakpoints), run the overflow script at each, and take screenshots only where something breaks.
+
+## Step 2b. Safari: safaridriver MCP
+
+After the Chrome pass, check desktop Safari (WebKit) through the **safari** server (Apple's `safaridriver --mcp`, Safari 27+, macOS only). Its tools usually appear prefixed, e.g. `mcp__safari__screenshot`; below they are named without the prefix.
+
+**Check availability.** No safari tools in the session: mark Safari Needs Manual Verification and suggest setup: Safari > Develop > Allow Remote Automation, run `safaridriver --enable` once, then in `.mcp.json`:
+
+```json
+"safari": { "command": "safaridriver", "args": ["--mcp"] }
+```
+
+- Each session opens a separate automation window with a clean temporary profile (logged out, no cookies), like `--isolated`. Manual input in that window ends the session. One session at a time.
+- Desktop Safari only: `set_viewport_size` changes width, not user agent, touch or DPR. iOS Safari stays Needs Manual Verification.
+- No hard reload, device emulation or traces.
+
+| Task | Tool |
+|---|---|
+| Open page | `create_tab` (`url`) or `navigate_to_url` (also reloads: call it again with the same URL) |
+| Viewport | `set_viewport_size` (`width`, `height`) |
+| Element uids, page text | `get_page_content` (`region: "entire_page"`, `nodeIds: "interactive"`) |
+| Click / hover / type / keys | `page_interactions` (batch several actions in one call) |
+| Screenshots | `screenshot` (`full_page`, `savePath`); returns a file path, open it to view. `node` is a no-op: crop a full-page capture by the section's `top`/`height` |
+| Scripts from Steps 3-5 | `evaluate_javascript`: takes a function body, so run `return await (<script>)(<args>);` |
+| Console errors | `browser_console_messages` (`level_filter: ["error", "warn"]`) |
+| Failed requests | `list_network_requests` (`filter: { status_min: 400 }`), `get_network_request` |
+| Alerts/confirms | `browser_dialogs` |
+
+**Safari pass** (report only what differs from Chrome; link check is not repeated):
+1. Widths: the design frame width, 1440, 1280, 1024, then 768 and 390 (narrow desktop window, not iOS). Run Step 3 at each.
+2. Compare each section capture with the Chrome capture at the same width (Step 4). Typical WebKit differences: font rendering and line breaks, flex/grid `gap`, `position: sticky`, `backdrop-filter`, native form controls, date inputs, video autoplay.
+3. Items 12, 14, 18, 23, 25 (validation only), 29 and F1.
+4. Name Safari and its version in every Safari finding's Environment.
 
 ## Step 3. Prepare the page before every comparison screenshot
 
@@ -224,7 +256,7 @@ Compare section by section (Step 4), header to footer.
 27. Sticky headers, buttons, cookie notices and chat widgets do not cover important content (check at mobile widths too, after scrolling).
 28. Primary interactions work with mouse, touch and keyboard: keyboard via `press_key` (`Tab`, `Enter`, `Escape`) with visible focus; touch via `emulate` with `touch` flag (emulated only: real-device touch is Needs Manual Verification).
 29. `list_console_messages`: no page-breaking errors; point any to the developer with the message text and source.
-30. Tested in Chrome via chrome-devtools-mcp (it drives Chrome only). Other required browsers are Needs Manual Verification.
+30. Tested in Chrome via chrome-devtools-mcp and in desktop Safari via safaridriver MCP (Step 2b). iOS Safari and other required browsers are Needs Manual Verification.
 31. No placeholder content: lorem ipsum, "Placeholder" / sample text, test phones (555, 123456…, repeated digits), test emails (`example.com`, `test@`), stock placeholder images, empty headings, paragraphs, links, buttons or sections (placeholder script below). Compare suspicious contacts with the supplied copy before reporting.
 
 **Link check script (items 20-22):**
@@ -371,7 +403,7 @@ Run at every viewport of the standard sweep, after Step 3.
 ## Step 6. Findings discipline
 
 - Label every finding:
-  - **Confirmed**: reproduced on the live page with a chrome-devtools tool.
+  - **Confirmed**: reproduced on the live page with a chrome-devtools or safari tool.
   - **Likely**: visible in a screenshot/design comparison but not reproduced interactively.
   - **Needs Manual Verification**: could not be tested here (real device, real touch, other browsers, form submission not permitted).
 - Never claim a link, form or interaction was tested unless a tool call actually tested it. State which URLs were actually checked.
@@ -382,7 +414,7 @@ Run at every viewport of the standard sweep, after Step 3.
 
 One issue per bug:
 - **Title** (short) and **exact page URL**
-- **Environment:** viewport string used in `emulate`, desktop/mobile, Chrome version/channel, device emulated, language, consent state (if relevant)
+- **Environment:** browser and version (Chrome/channel or Safari), viewport string used in `emulate` (Chrome) or `set_viewport_size` size (Safari), desktop/mobile, device emulated, language, consent state (if relevant)
 - **Steps to reproduce**
 - **Actual result** and **expected result** (based on the approved design or other source of truth, named)
 - **Evidence:** screenshot saved with `take_screenshot` `filePath` (name it `<issue-number>_<viewport>.png`), the matching Figma frame/node link, and console/network details when relevant
@@ -399,7 +431,7 @@ Severity guide (suggested; follow the project's own scale if given):
 ## Step 8. Summary and approval readiness
 
 End with:
-1. **Coverage:** sources of truth used, viewports emulated, Chrome version, languages and consent states tested, which URLs were checked, and what was not tested.
+1. **Coverage:** sources of truth used, viewports emulated, Chrome and Safari versions, languages and consent states tested, which URLs were checked, and what was not tested.
 2. **Source conflicts** (if any), as questions for the user.
 3. **Issue count by severity**, then the issue list ordered by severity.
 4. **Final approval checklist**, each marked pass / fail / not verified:
