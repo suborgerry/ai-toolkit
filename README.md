@@ -60,3 +60,4 @@ Codex has no equivalent; there the skill rules are the only guard.
 
 - `web-page-qa` and `critical-path` require chrome-devtools-mcp.
 - Figma skills use the Figma MCP server when available.
+- `safari`: Apple's `safaridriver --mcp` (Safari 27+, macOS only). One-time setup: Develop → Allow Remote Automation, `safaridriver --enable`.
