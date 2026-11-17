@@ -56,52 +56,13 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## 5. Commands
-
-- `npm run dev` — Vite dev server (use `npm run host` to expose on LAN).
-- `npm run build` — runs `tsc` typecheck, then `vite build`, then `node scripts/copy-assets.js`. The copy step syncs `dist/assets/**` into `wp-theme/assets/` so the built output can be dropped into a WordPress theme.
-- `npm run preview` — preview the `dist/` build.
-- No test runner is configured. Lint via `npx eslint .`; format via `npx prettier --write .`.
-
-### Build inputs
-
-`vite.config.js` discovers entry HTML by reading `pages/*.html` at config-load time — **only files in `pages/` become build inputs**; the root `index.html` is ignored. The TS entry is `src/scripts/main.ts`, emitted as `assets/js/script.js`. Two custom Vite plugins run during build:
-
-1. `wrap-in-iife` — wraps the emitted `script.js` in an IIFE so it is safe to enqueue from a WordPress theme without polluting the global scope.
-2. `flatten-html-output` — moves `dist/pages/*.html` up to `dist/*.html` after the bundle is written, so the final layout matches WordPress theme expectations.
-
-Output file naming is customized in `rollupOptions.output`: JS → `assets/js/[name].js`, CSS → `assets/css/style.css` (single file), fonts → `assets/fonts/`.
-
-### Handlebars partials
-
-`vite-plugin-handlebars` is wired to `components/` as the `partialDirectory` with `reloadOnPartialChange: true`. Reusable HTML fragments live there and are referenced from `pages/*.html` via Handlebars partial syntax (`{{> partial-name}}`). The directory is currently empty — new shared markup should go there rather than being duplicated across pages.
-
-### Styles
-
-`src/styles/main.css` is the single style entry, imported by `src/scripts/main.ts`. It does:
-
-```css
-@import "tailwindcss" important;
-@import "./custom.css";
-```
-
-The `important` modifier on the Tailwind v4 import means **every Tailwind utility is emitted as `!important`**. This is intentional so utilities win against WordPress theme styles when the build is embedded. Implication when authoring custom CSS: project-specific class rules in `custom.css` will *not* override Tailwind utilities applied to the same element unless they are also `!important`. Prefer adjusting the utility set on the element, or scope custom CSS to properties Tailwind isn't setting.
-
-### Units and design source
-
-Components are recreated from Figma. Component-scoped classes follow a BEM-ish convention (`.care-hero`, `.care-hero__title`, `.care-hero__button:hover`) alongside Tailwind utilities on the same element.
-
-### WordPress integration
-
-`scripts/copy-assets.js` mirrors `dist/assets/` → `wp-theme/assets/` at the end of `npm run build`. Anything that needs to ship to the theme must end up under `dist/assets/` (which is why the rollup output naming and IIFE wrapping matter). Public files in `public/images/` are copied to `dist/` as-is by Vite but are **not** propagated to `wp-theme/` by the copy script — image assets are expected to live in the theme separately.
-
-## 6. Code style
+## 5. Code style
 
 - Prettier: `printWidth: 180`, double quotes, trailing commas (es5), `arrowParens: "avoid"`, with `prettier-plugin-tailwindcss` enabled (class lists get auto-sorted).
 - ESLint: TypeScript recommended config; `@typescript-eslint/no-explicit-any` is disabled.
 - TypeScript: strict mode on, `noUnusedLocals`/`noUnusedParameters` enforced — `tsc` runs as part of `build` and will fail the build on unused identifiers.
 
-## 7. Code for humar read
+## 6. Code for humar read
 
 - When writing something intended for human consumption, (comment, commit message, reply to prompt) use as few words as possible. Pick every word meticulously to reduce the volume to a strict minimum. Be down to the point. Less is more.
 
@@ -131,6 +92,6 @@ Components are recreated from Figma. Component-scoped classes follow a BEM-ish c
 
 - If the prompt indicates that a bug is being fixed, don't write the fix right away. First write the test. Observe it failing. Then write the fix. And observe the test passing.
 
-## 8. Interaction tool. 
+## 7. Interaction tool. 
 - Priority #1 for chromedevtools-mcp. If unavailable, check whether it is installed and not currently in use by another agent.
 - Priority #2 for browser-skill and other tools.

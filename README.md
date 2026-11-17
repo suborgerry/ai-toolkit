@@ -25,6 +25,7 @@ claude/                           Claude Code plugin "ai-toolkit"
 codex/skills/<name>/              Codex skills
   SKILL.md
   agents/openai.yaml
+templates/                        CLAUDE.md, AGENTS.md for theme projects; fill the Project block
 ```
 
 ## Install: Claude Code

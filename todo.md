@@ -14,11 +14,11 @@
 - [ ] Move `web-page-qa` inline JS (scroll prep, freeze, section map, overflow, link check) to `scripts/*.js`.
 - [ ] Unify viewport sets: `figma-pixel-perfect-frontend` 1440/1024/768/375 vs `web-page-qa` 1920…320.
 - [ ] Resolve overlap with Figma plugin skill `figma:figma-design-to-code` (mandatory before `get_design_context`); reference it from `figma-pixel-perfect-frontend`.
-- [ ] `web-page-qa` hard-stops without chrome-devtools; `AGENTS.md` §8 allows a fallback. Pick one rule.
+- [ ] `web-page-qa` hard-stops without chrome-devtools; `AGENTS.md` §Interaction tool allows a fallback. Pick one rule.
 - [ ] Rename toolkit `skill-creator` if collision with Codex built-in / `anthropic-skills:skill-creator` causes wrong triggering.
 - [ ] Add LICENSE (required by Claude plugin directory) and plugin icon if publishing.
 - [ ] Verify Codex `openai.yaml` dependency schema for stdio MCP (`web-page-qa` → chrome-devtools).
-- [ ] `AGENTS.md` §5–6 describe a Vite/WordPress project that is not in this repo; move to a template or drop.
+- [ ] Root and `templates/` `AGENTS.md` §Code style describe a Vite/TS config (Prettier, ESLint, `tsc`) not verified for themes; confirm or drop.
 
 ## acf-wp-flexible-content
 
