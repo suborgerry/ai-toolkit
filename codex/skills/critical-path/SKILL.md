@@ -1,6 +1,6 @@
 ---
 name: critical-path
-description: Speed up first render of a Vite + WordPress theme page - per-page critical CSS generated with `critical` (inlined in head, full bundle deferred) and non-blocking JS (defer, delayed third-party scripts), measured before and after with chrome-devtools-mcp traces. Use when asked about critical CSS or JS, render-blocking CSS or scripts, deferring theme or third-party scripts, critical rendering path, FCP/LCP, or PageSpeed on such a project. Not for visual QA against Figma (web-page-qa).
+description: Speed up first render of a WordPress theme page - per-page critical CSS generated with `critical` from the local site (inlined in head, full bundle deferred) and non-blocking JS (defer, delayed third-party scripts), measured before and after with chrome-devtools-mcp traces. Use when asked about critical CSS or JS, render-blocking CSS or scripts, deferring theme or third-party scripts, critical rendering path, FCP/LCP, or PageSpeed on such a project. Not for visual QA against Figma (web-page-qa).
 ---
 
 # Critical rendering path
@@ -19,7 +19,7 @@ Write the report in the language the user writes in.
 
 Stop and tell the user if any is missing:
 
-- Vite project that builds pages from `pages/*.html` into `dist/` and copies `dist/assets` into a WordPress theme.
+- WordPress theme with a build step that produces the CSS bundle the theme enqueues.
 - Node ≥ 22.13 (`critical` 9).
 - Local WordPress serving the theme, reachable in the browser. Never measure or change production.
 - chrome-devtools-mcp.
@@ -28,15 +28,15 @@ Stop and tell the user if any is missing:
 
 Inspect once, change nothing:
 
-- `package.json` `build` script, `vite.config.*` (`base`, output names), `scripts/copy-assets.*` (which dist files go where in the theme).
+- `package.json` scripts, build config, and how built CSS reaches the theme and the release package (e.g. `scripts/package-theme.mjs`): which folders ship, which are gitignored.
 - Theme: `wp_enqueue_style` / `wp_enqueue_script` calls — handles, `in_footer`, `strategy`, dependencies, inline scripts attached to them.
 - Head of each WordPress page (via `evaluate_script`): every `link[rel=stylesheet]` and `script[src]` with position, `async`/`defer`/`type`, and origin. Mark third-party ones.
-- Page mapping: dist page name = WordPress slug, front page = `index`. List mismatches.
+- Page list: the front page and the pages the user names; ask if none are named. Key = WordPress slug, front page = `index`.
 - Performance plugins (WP Rocket, LiteSpeed Cache, Autoptimize, Perfmatters, SiteGround Optimizer). If one already does critical CSS or delays JS, stop and ask: two systems on the same page conflict.
 
 ## 2. Baseline
 
-For each mapped page on local WordPress, record a performance trace (`performance_start_trace`, `reload: true`, `ignoreCache: true`):
+For each listed page on local WordPress, record a performance trace (`performance_start_trace`, `reload: true`, `ignoreCache: true`):
 
 - mobile: `emulate` viewport `375x812x2,mobile,touch`, network `Fast 4G`, CPU `4`;
 - desktop: viewport `1440x900x1`, no throttling.
@@ -48,17 +48,20 @@ Stop and report if `RenderBlocking` does not list theme CSS or JS and no third-p
 
 ## 3. Plan and approve
 
-Present the planned changes as a list: dependencies, new files, `package.json` build order, `copy-assets` mapping, theme PHP edits, each JS change.
+Present the planned changes as a list: dependencies, new files, `package.json` script, critical CSS folder, theme PHP edits, each JS change.
 Ask for approval in one message before touching anything. Approval of the CSS part does not cover the JS part.
 
 ## 4. Critical CSS
 
-1. `npm i -D critical@^9 playwright`, then `npx playwright install chromium` (use the project's package manager).
-2. Copy `<skill-dir>/scripts/critical-css.mjs` into the project's `scripts/`. It serves `dist/` with `vite preview`,
-   renders every `dist/*.html` at 375×812 and 1440×900 with JS running, and writes `dist/assets/css/critical/<page>.css`.
-3. Build order: `tsc && vite build && node scripts/critical-css.mjs && node scripts/copy-assets.js`.
-4. Make `copy-assets` copy `dist/assets/css/critical/` into the theme. Follow the file's existing style.
-5. `FORCED_CSS` in the script: add rules for states the project's JS removes on init (search `src/` for `x-cloak`,
+1. `pnpm add -D critical@^9 playwright`, then `pnpm exec playwright install chromium` (use the project's package manager).
+2. Copy `<skill-dir>/scripts/critical-css.mjs` into the project's `scripts/`. It renders each page of the
+   local site at 375×812 and 1440×900 with JS running and writes `<OUT_DIR>/<key>.css`. Set `OUT_DIR` to a theme
+   folder that is tracked in git and shipped in the release package.
+3. Add a separate script, not part of `build` (it needs the local site running the fresh build):
+   `"critical": "node scripts/critical-css.mjs <local-url> / /<slug>/ …"`. Run it after every style change and
+   commit the files together with that change: stale critical CSS breaks the first screen.
+4. Pages are rendered logged out (fresh browser): no admin bar, consent banner in its first-visit state.
+5. `FORCED_CSS` in the script: add rules for states the project's JS removes on init (search the theme JS sources for `x-cloak`,
    `no-js`, `classList.remove` at startup). The renderer extracts after JS ran and never sees those states.
 6. Theme PHP: read `references/wp-integration.md` and adapt the CSS part (handle, paths, page map).
 
@@ -73,12 +76,13 @@ Apply only the approved items:
   short sessions; say so. Never delay consent managers or anything the first screen needs.
 - First screen must look right before JS runs: menus, sliders, accordions in their initial state, no layout shift
   when JS initialises (`CLSCulprits`). Fix with CSS in the component, not with more inline JS.
-- Code splitting (dynamic `import()`) is out of scope: the IIFE `script.js` is a classic script. If the bundle is large and
+- Code splitting (dynamic `import()`) is out of scope for a classic-script bundle. If the bundle is large and
   `LCPBreakdown` or main-thread time points at it, recommend moving to ES modules in the report; do not do it.
 
 ## 6. Verify
 
-1. `npm run build` passes; every expected `critical/<page>.css` exists in the theme and is smaller than the full bundle.
+1. `build` and `critical` pass; every listed page has `critical/<key>.css` in the theme, smaller than the full bundle,
+   and the release package contains it.
 2. On each WordPress page: `<style id="critical-css">` comes before any stylesheet in `<head>`, the bundle is a
    `preload` in `<head>` and a stylesheet at the end of `<body>`. A page without a critical file still has the normal blocking link.
 3. `list_network_requests`: no 404 for fonts or images referenced by the critical CSS.

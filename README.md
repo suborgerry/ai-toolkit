@@ -11,7 +11,7 @@ Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two varian
 | `check-figma-assets` | Compare prepared images with Figma references |
 | `generate-alt-text` | Context-aware alt text for images, icons, logos |
 | `web-page-qa` | QA a live page against Figma via chrome-devtools-mcp |
-| `critical-path` | Critical CSS and non-blocking JS for a Vite + WordPress page, measured before/after |
+| `critical-path` | Critical CSS and non-blocking JS for a WordPress theme page, measured before/after |
 | `skill-creator` | Create or update a skill in this repo for both platforms |
 
 ## Layout

@@ -6,12 +6,11 @@ Adapt to the theme: put the code where the theme enqueues assets, use its prefix
 
 ```php
 // Critical CSS: inline the page's above-the-fold CSS, load the full bundle without blocking render.
-// Files: dist/assets/css/critical/<page>.css, copied into the theme by scripts/copy-assets.js.
+// Files: assets/css/critical/<page>.css, written by scripts/critical-css.mjs from the local site.
 // Pages without a file keep the normal render-blocking stylesheet.
 const CRITICAL_CSS_DIR = 'assets/css/critical/';   // theme-relative
-const CRITICAL_STYLE_HANDLE = 'main-style';        // handle of the enqueued Vite CSS bundle
-const CRITICAL_THEME_ASSETS = 'assets/';           // theme folder mirroring dist/assets/
-const CRITICAL_PAGE_MAP = [];                      // WP slug => dist page, e.g. ['home-care' => 'landing']
+const CRITICAL_STYLE_HANDLE = 'main-style';        // handle of the enqueued theme CSS bundle
+const CRITICAL_PAGE_MAP = [];                      // WP slug => critical file, e.g. ['home-care' => 'landing']
 
 // Critical file of the current page or null. Example: front page → assets/css/critical/index.css.
 function theme_critical_css_path(): ?string {
@@ -36,9 +35,7 @@ add_action('wp_head', function (): void {
 		return;
 	}
 
-	// url() in dist CSS is root-relative (/assets/...); point it at the theme copy.
-	$css = str_replace('url(/assets/', 'url(' . get_theme_file_uri(CRITICAL_THEME_ASSETS), file_get_contents($path));
-	echo '<style id="critical-css">' . $css . "</style>\n";
+	echo '<style id="critical-css">' . file_get_contents($path) . "</style>\n";
 }, 1);
 
 // Full bundle: preload in <head>, apply at the end of <body>. No inline JS, so CSP-safe.
@@ -57,8 +54,8 @@ add_filter('style_loader_tag', function (string $tag, string $handle, string $hr
 
 Check after adapting:
 
-- If the Vite `base` is not `/`, url() in critical files is still root-relative (`/assets/...`): the script resolves
-  them against the preview server. Keep the `str_replace`; verify fonts and images load.
+- url() in critical files is root-relative (`/wp-content/...`). If production WordPress lives in a subdirectory or
+  uses another content folder, rewrite them here; verify fonts and images load.
 - Styles that depend on the bundle handle still print in `<head>` and block. Usually fine; list them in the report.
 
 ## Theme JS bundle
