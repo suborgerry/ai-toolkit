@@ -69,7 +69,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 Use `pnpm`, not `npm` or `yarn`.
 
 - `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm check`.
-- `scripts/package-theme.mjs` packages the theme into `release/`.
+- `scripts/package-theme.mjs` packages the theme into `release/`. Agent files never ship: `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, `.claude/`, `.claude-plugin/`, `.agents/`. Add any missing one to its exclusions.
 - `templates/` holds the theme PHP templates, e.g. `templates/flexible.php`.
 
 Scripts differ between themes: read `package.json` and `scripts/` before the first build. Don't guess what a script does.
@@ -131,6 +131,7 @@ Scripts differ between themes: read `package.json` and `scripts/` before the fir
 - Local site and production URLs: see Project.
 - ACF content, menus and image crops live in the database, not in git. Deploy does not carry them.
 - At the end of a task, list what must be repeated on production by hand: page, field / menu / image, value.
+- Agent files on production: check read-only via chrome-devtools or safari MCP. Ask the user for the production URL each time; take the theme slug from the page source (`/wp-content/themes/<slug>/`). Open `<prod-url>/wp-content/themes/<slug>/<file>` for each agent file from §5 (for folders, a known file inside, e.g. `.claude-plugin/plugin.json`, `.claude/settings.json`): 200 = leaked, report it; 404 = absent; 403 = unknown, ask for a file listing (SFTP or hosting file manager).
 
 ## 11. Performance
 
