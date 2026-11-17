@@ -55,6 +55,11 @@ The Claude plugin ships a `PreToolUse` hook (`claude/hooks/wp-cli-guard.py`, nee
 - deny: aliases, `--ssh`, `--http`, `db drop|reset|import|clean`, `site empty|delete`, `search-replace` without `--dry-run`, `core|plugin|theme` changes, `user`, `config`;
 - ask: `eval`, `eval-file` (except the `figma-to-acf` seed script), `shell`, `db query|cli`, `post delete`, `option update|delete`, `cron event run`, `--post_status=publish`.
 
+## Git guard and language reminder
+
+- `PreToolUse` `claude/hooks/git-guard.py`: deny `git push` and commits with `Co-Authored-By`; ask before a commit on `main`.
+- `UserPromptSubmit`: reminds to reply in the user's language; runs on every prompt, so it survives context compaction.
+
 Codex has no equivalent; there the skill rules are the only guard.
 
 ## MCP servers
