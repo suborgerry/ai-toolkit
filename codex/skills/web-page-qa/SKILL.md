@@ -5,9 +5,11 @@ description: "QA a developed web page against its approved Figma/design on deskt
 
 # Web Page QA (Web Department Quality Control Checklist)
 
-**Goal:** confirm the developed page matches the approved design on desktop and mobile and has no visible or functional errors before approval. Claude acts as the QA reviewer and produces findings. Claude never approves a page: final approval belongs to the Web Department Director or project lead.
+**Goal:** verify that the developed page visually matches the approved Figma reference 1:1 at every supplied width and in every supplied state, and check for functional errors before approval. Claude acts as the QA reviewer and produces findings. Claude never approves a page: final approval belongs to the Web Department Director or project lead.
 
 Write the report in the language the user writes in, unless they ask otherwise.
+
+**1:1 acceptance criterion.** Compare the rendered page with the visible Figma canvas or a rendered frame. Record every visible difference, even a minor one. Exclude a difference only when the user or project lead explicitly approved that specific departure. Record source conflicts for resolution and leave design match unverified wherever the reference or live state is unavailable.
 
 ## Scope
 
@@ -96,7 +98,7 @@ Tool names and parameters change between versions: go by the tool schemas actual
 3. If a WordPress admin bar or Shopify preview bar is visible, the session is logged in: it shifts the layout and hides public-state bugs. Switch to an isolated context.
 
 ### Viewports
-Compare at the same width as the design frame. Standard sweep with `emulate`:
+Compare at the exact width of the design frame. Verify the rendered viewport width with `document.documentElement.clientWidth` and adjust the emulated width for any scrollbar gutter. Standard sweep with `emulate`:
 - Desktop: `1920x1080x1`, `1440x900x1`, `1280x800x1`, `1024x768x1`
 - Tablet: `768x1024x2,mobile,touch`
 - Mobile: `390x844x3,mobile,touch`, `375x667x2,mobile,touch`, `320x568x2,mobile,touch`
@@ -208,7 +210,7 @@ Comparing a whole long page in one image is imprecise. Work one section at a tim
   return { font: s.fontFamily, size: s.fontSize, weight: s.fontWeight, lineHeight: s.lineHeight, color: s.color, letterSpacing: s.letterSpacing, textTransform: s.textTransform, margin: s.margin, padding: s.padding, width: el.getBoundingClientRect().width }; }
 ```
    Pass the selector in `args`; compare against `get_variable_defs` / `get_metadata` values from Figma.
-6. Repeat for the tablet and mobile frames.
+6. Repeat for every supplied width and state. Use a component-only frame to compare the component itself. Use a page or section frame to verify its placement and surrounding layout. For an open or interactive state, reproduce it through the visible control before capturing the live render.
 
 ## Step 5. Checklist
 
@@ -420,7 +422,7 @@ Run on a reloaded page without the Step 3 freeze, at desktop and mobile. Scripts
   - **Likely**: visible in a screenshot/design comparison but not reproduced interactively.
   - **Needs Manual Verification**: could not be tested here (real device, real touch, other browsers, form submission not permitted).
 - Never claim a link, form or interaction was tested unless a tool call actually tested it. State which URLs were actually checked.
-- Do not report approved differences.
+- Record every visible difference under the affected page and state unless it was explicitly approved. Capture the approval reference for each exception.
 - Source contradictions go under Source conflicts, not into bugs.
 
 ## Step 7. Bug report
@@ -448,7 +450,7 @@ End with:
 2. **Source conflicts** (if any), as questions for the user.
 3. **Issue count by severity**, then the issue list ordered by severity.
 4. **Final approval checklist**, each marked pass / fail / not verified:
-   - Page matches the approved desktop and mobile design.
+   - The rendered page matches Figma 1:1 across every supplied width and state, with each explicit exception documented. Mark any unverified width or state in Coverage and withhold a full pass while any comparison is missing or any difference is unresolved.
    - No known visual, responsive, link, form, navigation or interaction errors remain.
    - Every clickable element works; no URL returns 404, another error page or an unintended destination.
    - No glaring typos or obvious copy errors remain.
@@ -460,3 +462,5 @@ End with:
 ## Retest mode
 
 When the user supplies a previous bug list: reload with `ignoreCache: true`, run Step 3, retest each original issue at its original `emulate` viewport (and language/consent state) plus related screen sizes, mark each Fixed / Not fixed / Regressed, add any new issues found nearby, and update the final approval checklist.
+
+For a post-deployment page comparison against Figma, run the visual comparison in Step 4 across all supplied widths and states in addition to any fix-specific retests. When the user requests only a targeted retest, name its scope in the result.
