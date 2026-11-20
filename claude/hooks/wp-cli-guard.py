@@ -80,13 +80,13 @@ def matches(positional, rules):
 
 
 def is_seed_script(positional, cwd):
-    """True for `wp eval-file <plugin>/skills/figma-to-acf/scripts/seed-page.php`."""
-    plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    if not plugin_root or len(positional) < 2:
+    """True for `wp eval-file .claude/skills/figma-to-acf/scripts/seed-page.php`."""
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR")
+    if not project_dir or len(positional) < 2:
         return False
 
     script = os.path.realpath(os.path.join(cwd, positional[1]))
-    return script == os.path.realpath(os.path.join(plugin_root, SEED_SCRIPT))
+    return script == os.path.realpath(os.path.join(project_dir, ".claude", SEED_SCRIPT))
 
 
 def check(args, cwd):

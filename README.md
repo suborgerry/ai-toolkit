@@ -1,6 +1,6 @@
 # ai-toolkit
 
-Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two variants: a Claude Code plugin and Codex skills. Both variants share one body; only platform-specific lines differ.
+Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two variants: a Claude Code `.claude/` folder and Codex skills. Both variants share one body; only platform-specific lines differ.
 
 | Skill | Purpose |
 |---|---|
@@ -17,10 +17,9 @@ Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two varian
 ## Layout
 
 ```txt
-.claude-plugin/marketplace.json   Claude marketplace → ./claude
-claude/                           Claude Code plugin "ai-toolkit"
-  .claude-plugin/plugin.json
-  hooks/                          WP-CLI guard (PreToolUse)
+claude/                           copy into a project as .claude/
+  settings.json                   hooks; enables built-in cc-plugin-you-should-know (Claude Code 2.1.287+)
+  hooks/                          WP-CLI and git guards (PreToolUse)
   skills/<name>/SKILL.md
 codex/skills/<name>/              Codex skills
   SKILL.md
@@ -30,12 +29,11 @@ templates/                        CLAUDE.md, AGENTS.md for theme projects; fill 
 
 ## Install: Claude Code
 
-```txt
-/plugin marketplace add suborgerry/ai-toolkit
-/plugin install ai-toolkit@ai-toolkit
+```bash
+cp -R claude <project>/.claude
 ```
 
-Local development: `claude --plugin-dir ./claude`. Skills are namespaced, e.g. `/ai-toolkit:web-page-qa`.
+Overwrites an existing `<project>/.claude/settings.json`. Invoke skills as `/web-page-qa`.
 
 ## Install: Codex
 
@@ -50,7 +48,7 @@ Invoke with `$skill-name` or `/skills`. Codex ships a built-in `skill-creator` w
 
 ## WP-CLI guard
 
-The Claude plugin ships a `PreToolUse` hook (`claude/hooks/wp-cli-guard.py`, needs `python3`) active in every session with the plugin enabled:
+`PreToolUse` hook `claude/hooks/wp-cli-guard.py` (needs `python3`), active in every session of the project:
 
 - deny: aliases, `--ssh`, `--http`, `db drop|reset|import|clean`, `site empty|delete`, `search-replace` without `--dry-run`, `core|plugin|theme` changes, `user`, `config`;
 - ask: `eval`, `eval-file` (except the `figma-to-acf` seed script), `shell`, `db query|cli`, `post delete`, `option update|delete`, `cron event run`, `--post_status=publish`.

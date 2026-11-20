@@ -106,7 +106,7 @@ Pick the first route that fits:
 For media-library files:
 
 1. Export from Figma at the rendered size × 2, in the format the site uses.
-2. Check with the `ai-toolkit:check-figma-assets` skill; write alt text with `ai-toolkit:generate-alt-text`.
+2. Check with the `check-figma-assets` skill; write alt text with `generate-alt-text`.
 3. `wp media import <file> --porcelain --title="..." --alt="..."`; record the ID for the seed.
 
 Never use temporary Figma asset URLs. Clean SVG exports: remove fixed IDs that can collide, keep `viewBox`,
@@ -118,7 +118,7 @@ use `currentColor` where the color follows text.
 2. Validate changed JSON (`python3 -m json.tool <file>`) and run the checks in `references/acf-output.md` →
    "Validation And Verification".
 3. Read back the seed (`wp post meta list <ID>`) and screenshot the full page once at desktop and 375 px.
-4. Full QA is out of scope; suggest `ai-toolkit:web-page-qa` on the dev page.
+4. Full QA is out of scope; suggest `web-page-qa` on the dev page.
 
 ## Final response
 

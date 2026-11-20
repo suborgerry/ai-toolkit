@@ -52,9 +52,9 @@ If the design cannot be accessed, request the missing reference rather than clai
 - Use existing conversion tooling when available; do not assume a `Converter/` directory,
   package manager, or fixed export scale. Keep temporary files in a task-specific directory.
 - Compare prepared images with the design, including crop, orientation, edges, and backgrounds.
-  If available, the `ai-toolkit:check-figma-assets` skill supports this check; otherwise perform it directly.
+  If available, the `check-figma-assets` skill supports this check; otherwise perform it directly.
 - Generate alt text from the visible image, page language, and usage context. If available,
-  use the `ai-toolkit:generate-alt-text` skill; otherwise apply contextual accessibility guidance directly.
+  use the `generate-alt-text` skill; otherwise apply contextual accessibility guidance directly.
 - Import through the supported media workflow and record attachment IDs. With WP-CLI,
   `wp media import <file> --porcelain` returns the ID; set the title and alt text as needed.
 - Do not delete replaced attachments unless deletion is in scope and their reuse has been checked.
@@ -120,7 +120,7 @@ styles at the frame widths with the script below (`evaluate_script` in chrome-de
 
 ### Run web-page-qa
 
-Finish by running the `ai-toolkit:web-page-qa` skill on every changed page against its own frames.
+Finish by running the `web-page-qa` skill on every changed page against its own frames.
 This step is mandatory. If it cannot run, say so in the report.
 
 Report changed sections, imported media IDs, verification results, web-page-qa findings, and

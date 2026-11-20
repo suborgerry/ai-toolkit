@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: Create or update a skill in the ai-toolkit repository, producing both the Claude Code plugin variant and the Codex variant. Use when asked to write, add, port, split, rename, or improve a toolkit skill, its description, or its triggering. Not for general coding guidelines or one-off prompts.
+description: Create or update a skill in the ai-toolkit repository, producing both the Claude Code variant and the Codex variant. Use when asked to write, add, port, split, rename, or improve a toolkit skill, its description, or its triggering. Not for general coding guidelines or one-off prompts.
 ---
 
 # Create or update a toolkit skill
@@ -8,7 +8,7 @@ description: Create or update a skill in the ai-toolkit repository, producing bo
 ## Layout
 
 ```txt
-claude/skills/<name>/SKILL.md            Claude Code plugin "ai-toolkit"
+claude/skills/<name>/SKILL.md            Claude Code, copied into a project as .claude/
 codex/skills/<name>/SKILL.md             Codex
 codex/skills/<name>/agents/openai.yaml   Codex UI metadata, policy, MCP dependencies
 <platform>/skills/<name>/references/     Long specs, read on demand
@@ -43,7 +43,7 @@ Both variants share one body. Only the lines listed in "Platform differences" ma
 
 | Concern | Claude variant | Codex variant |
 |---|---|---|
-| Reference another skill | `ai-toolkit:<name>` skill | `$<name>` |
+| Reference another skill | `<name>` skill | `$<name>` |
 | Bundled file in a command | `${CLAUDE_SKILL_DIR}/scripts/x` | path relative to the skill directory |
 | Questions to the user | `AskUserQuestion` for choices; plain text for links and free text | one plain-text message |
 | MCP setup snippet | `claude mcp add <name> -- <command>` or `.mcp.json` | `[mcp_servers.<name>]` in `~/.codex/config.toml` |
@@ -75,10 +75,10 @@ dependencies:            # only for MCP servers the skill cannot work without
 ## 5. Verify
 
 1. `diff -r claude/skills/<name> codex/skills/<name>`: only platform lines and `agents/` differ.
-2. `claude plugin validate ./claude` and `claude plugin validate .` pass.
+2. `claude/settings.json` parses as JSON.
 3. Frontmatter and `openai.yaml` parse as YAML.
 4. Trigger check: write 3 prompts that must trigger the skill and 2 that must not. Run each in a fresh
-   session (`claude -p "<prompt>" --plugin-dir ./claude`; `codex exec "<prompt>"` with the skill
+   session (`claude -p "<prompt>"` in a temp project with `claude/` copied as `.claude/`; `codex exec "<prompt>"` with the skill
    installed) and confirm which skill loaded.
 5. Run the skill on one realistic task. Fix what the model got wrong, then re-run.
 

@@ -1,4 +1,7 @@
 {
+  "enabledPlugins": {
+    "cc-plugin-you-should-know@builtin": true
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -6,11 +9,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/wp-cli-guard.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/wp-cli-guard.py\""
           },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/git-guard.py\""
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/git-guard.py\""
           }
         ]
       }
