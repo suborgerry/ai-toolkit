@@ -1,0 +1,14 @@
+interface:
+  display_name: "Figma to Shopify Liquid"
+  short_description: "Build Figma sections as Shopify theme sections on a dev theme"
+  default_prompt: "Use $figma-to-shopify-liquid to build these Figma sections as Shopify theme sections and verify them on the theme dev preview."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "figma"
+      description: "Figma MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.figma.com/mcp"
+    - type: "mcp"
+      value: "chrome-devtools"
+      description: "Chrome DevTools MCP server (chrome-devtools-mcp)"

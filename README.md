@@ -6,6 +6,7 @@ Skills for a Figma → frontend → WordPress (ACF) workflow, kept in two varian
 |---|---|
 | `figma-pixel-perfect-frontend` | Figma/screenshot → frontend markup with browser visual QA |
 | `figma-to-acf` | Figma → ACF layouts + PHP on local WordPress, seeded and visually verified |
+| `figma-to-shopify-liquid` | Figma → Shopify theme sections (Liquid, schema, JSON template) on `theme dev`, visually verified |
 | `acf-wp-flexible-content` | Static sections → ACF Flexible Content, Local JSON, PHP templates |
 | `new-page-by-existing` | Fill a cloned WordPress page from Figma and supplied content |
 | `check-figma-assets` | Compare prepared images with Figma references |
